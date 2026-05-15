@@ -29,5 +29,6 @@ class ProductosSerializers(serializers.ModelSerializer):
             'stock', 
             'categoria', 
             'categoria_nombre', 
-            'imagenes'
+            'imagenes',
+            'disponible'
         ]

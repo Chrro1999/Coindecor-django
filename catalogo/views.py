@@ -11,5 +11,5 @@ class CategoriaViewSet(viewsets.ModelViewSet):
     queryset = Categoria.objects.all()
     serializer_class = CategoriaSerializer
 
-# Con esto permito que cualqiera vea, pero solo yo puedo editar
+# Con esto permito que cualquiera vea, pero solo yo puedo editar
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]

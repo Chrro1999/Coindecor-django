@@ -18,6 +18,7 @@ class Productos(models.Model):
     precio = models.DecimalField(max_digits=10, decimal_places=2) # Hasta 10 digitos y 2 decimales
     imagen = models.ImageField(upload_to='productos/', null=True, blank=True) # Imagen principal
     stock = models.IntegerField(default=0)
+    disponible = models.BooleanField(default=True)
 
     def __str__(self):
         return self.nombre

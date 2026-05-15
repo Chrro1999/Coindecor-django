@@ -9,9 +9,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv()
 
 # 3. Seguridad
-SECRET_KEY = os.getenv('SECRET_KEY')
+SECRET_KEY = os.getenv('SECRET_KEY', 'clave-secreta-de-respaldo-por-si-acaso')
 DEBUG = os.getenv('DEBUG') == 'True'
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '127.0.0.1,localhost').split(',')
+# CORREGIDO: Permitimos que Render y cualquier cliente lo alcance de forma pública
+ALLOWED_HOSTS = ['*']
 
 # 4. Apps instaladas
 INSTALLED_APPS = [
@@ -26,9 +27,10 @@ INSTALLED_APPS = [
     'catalogo',
 ]
 
-# 5. Middleware (Orden verificado para evitar errores E408, E409, E410)
+# 5. Middleware (CORREGIDO: Añadido WhiteNoise para manejar archivos e imágenes en internet)
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -40,7 +42,7 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'tienda.urls'
 
-# 6. Templates (Configuración verificada para evitar error E403)
+# 6. Templates
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -59,17 +61,25 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'tienda.wsgi.application'
 
-# 7. Base de Datos PostgreSQL
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('DB_NAME'),
-        'USER': os.getenv('DB_USER'),
-        'PASSWORD': os.getenv('DB_PASSWORD'),
-        'HOST': os.getenv('DB_HOST'),
-        'PORT': os.getenv('DB_PORT'),
+# 7. Base de Datos (Usa SQLite por defecto si no están las variables de PostgreSQL)
+if os.getenv('DB_NAME'):
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': os.getenv('DB_NAME'),
+            'USER': os.getenv('DB_USER'),
+            'PASSWORD': os.getenv('DB_PASSWORD'),
+            'HOST': os.getenv('DB_HOST'),
+            'PORT': os.getenv('DB_PORT'),
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 # 8. Validadores de Password
 AUTH_PASSWORD_VALIDATORS = [
@@ -79,20 +89,23 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
-# 9. CORS y Localización
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",
-]
+# 9. CORS (CORREGIDO: Permite que tu Netlify consulte los productos sin bloqueos)
+CORS_ALLOW_ALL_ORIGINS = True
 
 LANGUAGE_CODE = 'es-ec'
 TIME_ZONE = 'America/Guayaquil'
 USE_I18N = True
 USE_TZ = True
 
-# 10. Archivos Estáticos y Media
+# 10. Archivos Estáticos y Media (Configuración optimizada para WhiteNoise)
 STATIC_URL = 'static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+STORAGES = {
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

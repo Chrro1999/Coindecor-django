@@ -9,9 +9,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv()
 
 # 3. Seguridad
-SECRET_KEY = os.getenv('SECRET_KEY', 'clave-secreta-de-respaldo-por-si-acaso')
-DEBUG = os.getenv('DEBUG') == 'True'
-# CORREGIDO: Permitimos que Render y cualquier cliente lo alcance de forma pública
+SECRET_KEY = os.environ.get('SECRET_KEY', 'clave-secreta-de-respaldo-por-si-acaso')
+DEBUG = os.environ.get('DEBUG') == 'True'
+
+# Permitimos que Render y cualquier cliente lo alcance de forma pública
 ALLOWED_HOSTS = ['*']
 
 # 4. Apps instaladas
@@ -27,7 +28,7 @@ INSTALLED_APPS = [
     'catalogo',
 ]
 
-# 5. Middleware (CORREGIDO: Añadido WhiteNoise para manejar archivos e imágenes en internet)
+# 5. Middleware (Añadido WhiteNoise para manejar archivos e imágenes en internet)
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
@@ -61,9 +62,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'tienda.wsgi.application'
 
-# 7. Base de Datos (Usa SQLite por defecto si no están las variables de PostgreSQL)
-if os.getenv('DB_NAME'):
-    DATABASES = {
+# 7. Base de Datos (Configuración limpia y unificada para Local y Producción)
+DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': os.environ.get('DB_NAME', 'coindecor_db'),
@@ -73,13 +73,6 @@ if os.getenv('DB_NAME'):
         'PORT': os.environ.get('DB_PORT', '5432'),
     }
 }
-else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
-    }
 
 # 8. Validadores de Password
 AUTH_PASSWORD_VALIDATORS = [
@@ -89,7 +82,7 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
-# 9. CORS (CORREGIDO: Permite que tu Netlify consulte los productos sin bloqueos)
+# 9. CORS (Permite que tu Netlify consulte los productos sin bloqueos)
 CORS_ALLOW_ALL_ORIGINS = True
 
 LANGUAGE_CODE = 'es-ec'

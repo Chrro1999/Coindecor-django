@@ -99,6 +99,10 @@ STORAGES = {
         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
     },
 }
+# 11. Seguridad CSRF para permitir inicios de sesión en producción
+CSRF_TRUSTED_ORIGINS = [
+    'https://coindecor-backend-production.up.railway.app',
+]
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
